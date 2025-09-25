@@ -22,7 +22,7 @@ public class User implements Serializable {
 
     @JsonIgnore // e usado para nao criar um loop infinito por causa da instanciacao de uma classe dentro da outra, so precisa ser usado em um dos lados
     @OneToMany(mappedBy = "client") // um para muitos, um usuario pode ter muitos pedidos
-    private final List<Order> orders = new ArrayList<>();
+    private final List<Order> orders = new ArrayList<>(); // orders e uma lista, entao apenas Get sao criados
 
     public User() {
     }
