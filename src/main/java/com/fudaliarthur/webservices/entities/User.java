@@ -1,5 +1,6 @@
 package com.fudaliarthur.webservices.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -19,8 +20,9 @@ public class User implements Serializable {
     private String phone;
     private String password;
 
-    @OneToMany(mappedBy = "client")
-    private List<Order> orders = new ArrayList<>();
+    @JsonIgnore // e usado para nao criar um loop infinito por causa da instanciacao de uma classe dentro da outra, so precisa ser usado em um dos lados
+    @OneToMany(mappedBy = "client") // um para muitos, um usuario pode ter muitos pedidos
+    private final List<Order> orders = new ArrayList<>();
 
     public User() {
     }
