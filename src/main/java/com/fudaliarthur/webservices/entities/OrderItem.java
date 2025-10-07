@@ -1,6 +1,7 @@
 package com.fudaliarthur.webservices.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fudaliarthur.webservices.entities.pk.OrderItemPK;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -11,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_order_item")
-
+@JsonPropertyOrder({ "price", "quantity", "subTotal", "product" }) // define a ordem do JSON
 public class OrderItem implements Serializable {
     @EmbeddedId
     private OrderItemPK id = new OrderItemPK();
@@ -60,6 +61,10 @@ public class OrderItem implements Serializable {
 
     public void setProduct(Product product) {
         id.setProduct(product);
+    }
+
+    public Double getSubTotal() {
+        return price * quantity;
     }
 
     @Override
