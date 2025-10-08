@@ -14,16 +14,33 @@ public class UserService {
     private UserRepository userRepository;
 
     // repassa a chamada para o repository
-    public List<User> findAll(){
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    public User findById(Long id){
+    public User findById(Long id) {
         Optional<User> obj = userRepository.findById(id);
         return obj.get();
     }
 
-    public User insertUser(User user){
+    public User insertUser(User user) {
         return userRepository.save(user);
+    }
+
+    public void deleteUserbyId(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public User updateUser(Long id, User obj) {
+        User user = userRepository.getReferenceById(id);
+        updateData(user, obj);
+        return userRepository.save(user);
+
+    }
+
+    private void updateData(User user, User obj) {
+        user.setName(obj.getName());
+        user.setEmail(obj.getEmail());
+        user.setPhone(obj.getPhone());
     }
 }
