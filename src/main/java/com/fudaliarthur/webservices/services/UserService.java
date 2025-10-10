@@ -4,6 +4,7 @@ import com.fudaliarthur.webservices.entities.User;
 import com.fudaliarthur.webservices.repositories.UserRepository;
 import com.fudaliarthur.webservices.services.exceptions.DatabaseException;
 import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,10 +43,10 @@ public class UserService {
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException(id);
         }*/
-        try{
+        try {
             User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
             userRepository.delete(user);
-        } catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(e.getMessage());
         }
 
@@ -53,9 +54,14 @@ public class UserService {
     }
 
     public User updateUser(Long id, User obj) {
-        User user = userRepository.getReferenceById(id);
-        updateData(user, obj);
-        return userRepository.save(user);
+        try {
+            User user = userRepository.getReferenceById(id);
+            updateData(user, obj);
+            return userRepository.save(user);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(id);
+        }
+
 
     }
 
