@@ -33,16 +33,7 @@ public class UserService {
     }
 
     public void deleteUserById(Long id) {
-        /*try {
-            userRepository.deleteById(id);
-        } catch (RuntimeException e){
-            e.printStackTrace(); // usado para descobrir o erro especifico
-        }*/
-/*        try {
-            userRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResourceNotFoundException(id);
-        }*/
+
         try {
             User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
             userRepository.delete(user);
