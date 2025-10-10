@@ -5,6 +5,7 @@ import com.fudaliarthur.webservices.entities.User;
 import com.fudaliarthur.webservices.repositories.CategoryRepository;
 import com.fudaliarthur.webservices.services.exceptions.DatabaseException;
 import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,17 @@ public class CategoryService {
             throw new DatabaseException(e.getMessage());
         }
     }
-    
+
+    public Category updateCategory(Long id, Category obj){
+        try{
+            Category cat = categoryRepository.getReferenceById(id);
+            updateData(cat, obj);
+            return categoryRepository.save(cat);
+        } catch (EntityNotFoundException e ){
+            throw new ResourceNotFoundException(id);
+        }
+    }
+
     private void updateData(Category cat, Category obj) {
         cat.setName(obj.getName());
     }
