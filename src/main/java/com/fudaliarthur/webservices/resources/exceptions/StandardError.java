@@ -5,17 +5,17 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class StandartError implements Serializable {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT-3")
+public class StandardError implements Serializable {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     private Instant timestamp;
     private Integer status;
     private String error;
     private String message;
     private String path;
 
-    public StandartError(){}
+    public StandardError(){}
 
-    public StandartError(Instant timestamp, Integer status, String error, String message, String path) {
+    public StandardError(Instant timestamp, Integer status, String error, String message, String path) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;

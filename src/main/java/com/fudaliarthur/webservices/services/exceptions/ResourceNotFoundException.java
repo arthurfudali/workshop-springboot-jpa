@@ -1,7 +1,7 @@
 package com.fudaliarthur.webservices.services.exceptions;
 
-public class ResourceNotFoundExeption extends RuntimeException{
-    public ResourceNotFoundExeption(Object id){
+public class ResourceNotFoundException extends RuntimeException{
+    public ResourceNotFoundException(Object id){
         super("Resource not found with id " + id);
     }
 }

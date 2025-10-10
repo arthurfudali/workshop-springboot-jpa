@@ -2,8 +2,11 @@ package com.fudaliarthur.webservices.services;
 
 import com.fudaliarthur.webservices.entities.User;
 import com.fudaliarthur.webservices.repositories.UserRepository;
-import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundExeption;
+import com.fudaliarthur.webservices.services.exceptions.DatabaseException;
+import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,15 +24,32 @@ public class UserService {
 
     public User findById(Long id) {
         Optional<User> obj = userRepository.findById(id);
-        return obj.orElseThrow(() -> new ResourceNotFoundExeption(id));
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     public User insertUser(User user) {
         return userRepository.save(user);
     }
 
-    public void deleteUserbyId(Long id) {
-        userRepository.deleteById(id);
+    public void deleteUserById(Long id) {
+        /*try {
+            userRepository.deleteById(id);
+        } catch (RuntimeException e){
+            e.printStackTrace(); // usado para descobrir o erro especifico
+        }*/
+/*        try {
+            userRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException(id);
+        }*/
+        try{
+            User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+            userRepository.delete(user);
+        } catch (DataIntegrityViolationException e){
+            throw new DatabaseException(e.getMessage());
+        }
+
+
     }
 
     public User updateUser(Long id, User obj) {
