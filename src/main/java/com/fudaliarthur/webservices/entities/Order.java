@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -14,23 +13,18 @@ import java.util.Set;
 @Entity
 @Table(name = "tb_order")
 public class Order implements Serializable {
+    @OneToMany(mappedBy = "id.order", cascade = CascadeType.ALL)
+    private final Set<OrderItem> items = new HashSet<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant moment;
-
     // coloca como integer para dizer que no BD sera um int
     private Integer orderStatus;
-
     @ManyToOne
     @JoinColumn(name = "client_id")
     private User client;
-
-    @OneToMany(mappedBy = "id.order")
-    private Set<OrderItem> items = new HashSet<>();
-
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     // o cascade serve para fazer com que o ID do pedido e do pagamento sejam iguais
 

@@ -1,11 +1,13 @@
 package com.fudaliarthur.webservices.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fudaliarthur.webservices.entities.enums.OrderStatus;
 
 import java.time.Instant;
 import java.util.List;
 
 public class OrderRequestDTO {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant moment;
     private OrderStatus orderStatus;
     private Long clientId;
@@ -13,6 +15,7 @@ public class OrderRequestDTO {
 
     private OrderRequestDTO() {
     }
+
 
     public OrderRequestDTO(Instant moment, OrderStatus orderStatus, Long clientId, List<OrderItemRequestDTO> items) {
         this.moment = moment;

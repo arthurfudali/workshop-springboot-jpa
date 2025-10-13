@@ -9,21 +9,24 @@ import com.fudaliarthur.webservices.entities.User;
 import com.fudaliarthur.webservices.repositories.OrderRepository;
 import com.fudaliarthur.webservices.repositories.ProductRepository;
 import com.fudaliarthur.webservices.repositories.UserRepository;
-import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class OrderService {
-    @Autowired
-    private OrderRepository orderRepository;
-    private UserRepository userRepository;
-    private ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+
+    // injecao por construtor
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository) {
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+    }
 
     // repassa a chamada para o repository
     public List<Order> findAll() {
@@ -36,45 +39,28 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(OrderRequestDTO orderRequestDTO) {
-        // busca o cliente no banco
-        User client = userRepository.findById(orderRequestDTO.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException(orderRequestDTO.getClientId()));
+    public Order createOrderWithItems(OrderRequestDTO orderRequestDTO) {
 
-        // criar order
+        // busca o cliente
+        User client = userRepository.findById(orderRequestDTO.getClientId()).orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + orderRequestDTO.getClientId()));
+
+        // cria o pedido
         Order order = new Order();
         order.setMoment(orderRequestDTO.getMoment());
-        order.setClient(client);
         order.setOrderStatus(orderRequestDTO.getOrderStatus());
+        order.setClient(client);
 
-        // listar e acossiar os OrderItems
-        List<OrderItem> orderItems = new ArrayList<>();
+        // cria os itens
+        for (OrderItemRequestDTO itemDTO : orderRequestDTO.getItems()) {
+            Product product = productRepository.findById(itemDTO.getProductId()).orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + itemDTO.getProductId()));
 
-        for (OrderItemRequestDTO itemRequestDTO : orderRequestDTO.getItems()) {
-            Product product = productRepository.findById(itemRequestDTO.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException(itemRequestDTO.getProductId()));
+            OrderItem orderItem = new OrderItem(order, product, itemDTO.getQuantity(), itemDTO.getPrice());
 
-            // criar o OrderItem usando o construtor
-            OrderItem orderItem = new OrderItem(
-                    order,           // associa o pedido
-                    product,         // associa o produto
-                    itemRequestDTO.getQuantity(),  // quantidade
-                    itemRequestDTO.getPrice()      // preço
-            );
-
-            orderItems.add(orderItem);
-
+            order.getItems().add(orderItem);
         }
 
-        // associar os itens ao pedido
-        // Como seu Order tem um Set<OrderItem>, precisamos adicionar todos
-        order.getItems().addAll(orderItems);
-
-        // salvar o pedido (funciona por causa do cascade)
-
+        // salva o pedido
         return orderRepository.save(order);
-
-
     }
 
 }

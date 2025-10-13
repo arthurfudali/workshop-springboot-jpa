@@ -5,7 +5,8 @@ public class OrderItemRequestDTO {
     private Integer quantity;
     private Double price;
 
-    public OrderItemRequestDTO() {}
+    public OrderItemRequestDTO() {
+    }
 
     public OrderItemRequestDTO(Long productId, Integer quantity, Double price) {
         this.productId = productId;
