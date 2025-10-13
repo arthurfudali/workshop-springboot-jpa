@@ -42,4 +42,10 @@ public class ProductResource {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody ProductRequestDTO productDTO) {
+        Product updatedProduct = productService.updateProduct(id, productDTO);
+        return ResponseEntity.ok(updatedProduct);
+    }
 }
