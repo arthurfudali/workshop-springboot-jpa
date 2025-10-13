@@ -30,8 +30,8 @@ public class CategoryResource {
     }
 
     @PostMapping
-    public ResponseEntity<Category> insertCategory(@RequestBody Category cat){
-        cat = categoryService.insertCategory(cat);
+    public ResponseEntity<Category> createCategory(@RequestBody Category cat){
+        cat = categoryService.createCategory(cat);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cat.getId()).toUri();
         return ResponseEntity.created(uri).body(cat);
     }

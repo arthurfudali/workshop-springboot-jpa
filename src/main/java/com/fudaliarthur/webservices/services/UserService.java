@@ -7,7 +7,6 @@ import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundExceptio
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,11 +27,11 @@ public class UserService {
         return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
-    public User insertUser(User user) {
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 
-    public void deleteUserById(Long id) {
+    public void deleteUser(Long id) {
 
         try {
             User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));

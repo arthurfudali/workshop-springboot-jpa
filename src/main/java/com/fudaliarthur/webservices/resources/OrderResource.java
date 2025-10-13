@@ -4,10 +4,11 @@ import com.fudaliarthur.webservices.dto.OrderRequestDTO;
 import com.fudaliarthur.webservices.entities.Order;
 import com.fudaliarthur.webservices.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -30,14 +31,16 @@ public class OrderResource {
     }
 
     @PostMapping
-    public ResponseEntity<Order> saveOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
-        System.out.println("Recebendo requisição: " + orderRequestDTO);
-        try {
-            Order createdOrder = orderService.createOrderWithItems(orderRequestDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Order> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+        Order createdOrder = orderService.createOrderWithItems(orderRequestDTO);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdOrder.getId()).toUri();
+        return ResponseEntity.created(uri).body(createdOrder);
+
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Order> deleteOrder(@PathVariable Long id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
     }
 }

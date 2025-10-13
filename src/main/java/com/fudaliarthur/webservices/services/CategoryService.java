@@ -1,7 +1,6 @@
 package com.fudaliarthur.webservices.services;
 
 import com.fudaliarthur.webservices.entities.Category;
-import com.fudaliarthur.webservices.entities.User;
 import com.fudaliarthur.webservices.repositories.CategoryRepository;
 import com.fudaliarthur.webservices.services.exceptions.DatabaseException;
 import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
@@ -28,7 +27,7 @@ public class CategoryService {
         return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
-    public Category insertCategory(Category obj){
+    public Category createCategory(Category obj){
         return categoryRepository.save(obj);
     }
 

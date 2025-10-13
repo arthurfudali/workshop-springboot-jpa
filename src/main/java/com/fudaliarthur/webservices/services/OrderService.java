@@ -9,6 +9,7 @@ import com.fudaliarthur.webservices.entities.User;
 import com.fudaliarthur.webservices.repositories.OrderRepository;
 import com.fudaliarthur.webservices.repositories.ProductRepository;
 import com.fudaliarthur.webservices.repositories.UserRepository;
+import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,46 +22,47 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
 
-    // injecao por construtor
     public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
     }
 
-    // repassa a chamada para o repository
     public List<Order> findAll() {
         return orderRepository.findAll();
     }
 
     public Order findById(Long id) {
         Optional<Order> obj = orderRepository.findById(id);
-        return obj.get();
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     @Transactional
     public Order createOrderWithItems(OrderRequestDTO orderRequestDTO) {
 
-        // busca o cliente
-        User client = userRepository.findById(orderRequestDTO.getClientId()).orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + orderRequestDTO.getClientId()));
+        User client = userRepository.findById(orderRequestDTO.getClientId())
+                .orElseThrow(() -> new ResourceNotFoundException(orderRequestDTO.getClientId()));
 
-        // cria o pedido
         Order order = new Order();
         order.setMoment(orderRequestDTO.getMoment());
         order.setOrderStatus(orderRequestDTO.getOrderStatus());
         order.setClient(client);
 
-        // cria os itens
         for (OrderItemRequestDTO itemDTO : orderRequestDTO.getItems()) {
-            Product product = productRepository.findById(itemDTO.getProductId()).orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + itemDTO.getProductId()));
+            Product product = productRepository.findById(itemDTO.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException(itemDTO.getProductId()));
 
             OrderItem orderItem = new OrderItem(order, product, itemDTO.getQuantity(), itemDTO.getPrice());
 
             order.getItems().add(orderItem);
         }
 
-        // salva o pedido
         return orderRepository.save(order);
+    }
+
+    public void deleteOrder(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        orderRepository.delete(order);
     }
 
 }
