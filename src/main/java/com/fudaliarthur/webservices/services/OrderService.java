@@ -68,7 +68,7 @@ public class OrderService {
 
     @Transactional
     public Order addPayment(Long orderId) {
-        Order order = findById(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException(orderId));
         validateNoExistingPayment(order);
 
         Payment payment = createPaymentForOrder(order);
