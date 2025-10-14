@@ -2,17 +2,16 @@ package com.fudaliarthur.webservices.services;
 
 import com.fudaliarthur.webservices.dto.OrderItemRequestDTO;
 import com.fudaliarthur.webservices.dto.OrderRequestDTO;
-import com.fudaliarthur.webservices.entities.Order;
-import com.fudaliarthur.webservices.entities.OrderItem;
-import com.fudaliarthur.webservices.entities.Product;
-import com.fudaliarthur.webservices.entities.User;
+import com.fudaliarthur.webservices.entities.*;
 import com.fudaliarthur.webservices.repositories.OrderRepository;
+import com.fudaliarthur.webservices.repositories.PaymentRepository;
 import com.fudaliarthur.webservices.repositories.ProductRepository;
 import com.fudaliarthur.webservices.repositories.UserRepository;
 import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +20,13 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, PaymentRepository paymentRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public List<Order> findAll() {
@@ -63,6 +64,35 @@ public class OrderService {
     public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         orderRepository.delete(order);
+    }
+
+    @Transactional
+    public Order addPayment(Long orderId) {
+        Order order = findById(orderId);
+        validateNoExistingPayment(order);
+
+        Payment payment = createPaymentForOrder(order);
+        associatePaymentWithOrder(order, payment);
+
+        return order;
+    }
+
+    private void validateNoExistingPayment(Order order) {
+        if (order.getPayment() != null) {
+            throw new IllegalStateException("Order already has payment: " + order.getId());
+        }
+    }
+
+    private Payment createPaymentForOrder(Order order) {
+        Payment payment = new Payment();
+        payment.setMoment(Instant.now());
+        payment.setOrder(order);
+        return paymentRepository.save(payment);
+    }
+
+    private void associatePaymentWithOrder(Order order, Payment payment) {
+        order.setPayment(payment);
+        orderRepository.save(order);
     }
 
 }

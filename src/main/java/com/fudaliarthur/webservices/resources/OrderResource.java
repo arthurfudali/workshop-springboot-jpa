@@ -43,4 +43,15 @@ public class OrderResource {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{orderId}/payment")
+    public ResponseEntity<?> addPayment(@PathVariable Long orderId) {
+
+        Order order = orderService.addPayment(orderId);
+        return ResponseEntity.ok()
+                .header("Payment-Processed", "true")
+                .body(order);
+
+
+    }
 }
