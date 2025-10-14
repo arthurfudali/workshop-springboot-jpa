@@ -3,6 +3,7 @@ package com.fudaliarthur.webservices.services;
 import com.fudaliarthur.webservices.dto.OrderItemRequestDTO;
 import com.fudaliarthur.webservices.dto.OrderRequestDTO;
 import com.fudaliarthur.webservices.entities.*;
+import com.fudaliarthur.webservices.entities.enums.OrderStatus;
 import com.fudaliarthur.webservices.repositories.OrderRepository;
 import com.fudaliarthur.webservices.repositories.PaymentRepository;
 import com.fudaliarthur.webservices.repositories.ProductRepository;
@@ -73,6 +74,7 @@ public class OrderService {
 
         Payment payment = createPaymentForOrder(order);
         associatePaymentWithOrder(order, payment);
+        order.setOrderStatus(OrderStatus.PAID);
 
         return order;
     }
