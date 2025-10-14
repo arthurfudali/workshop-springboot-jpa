@@ -123,6 +123,8 @@ workshop-springboot-jpa/
 
 ### **Exemplo: Pedidos (Orders)**
 
+Documentação completa em: http://localhost:8080/swagger-ui/index.html#/
+
 | **Método** | **Endpoint** | **Descrição** |
 | --- | --- | --- |
 | `GET` | `/orders` | Lista todos os pedidos |
