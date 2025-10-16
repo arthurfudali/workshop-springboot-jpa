@@ -264,7 +264,6 @@ json
 - Implementar autenticação JWT
 - Adicionar testes unitários e de integração
 - Implementar paginação nas consultas
-- Adicionar documentação Swagger/OpenAPI
 - Configurar Docker e Docker Compose
 - Deploy no Render
 
