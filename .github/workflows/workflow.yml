@@ -47,8 +47,8 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v5
         with:
           args: >
-            -Dsonar.projectKey=<arthurfudali_workshop-springboot-jpa>
-            -Dsonar.organization=<arthurfudali>
+            -Dsonar.projectKey=arthurfudali_workshop-springboot-jpa
+            -Dsonar.organization=arthurfudali
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
