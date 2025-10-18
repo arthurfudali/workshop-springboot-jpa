@@ -19,8 +19,13 @@ import java.util.List;
 @Tag(name = "User management", description = "Rotas para gerenciamento de usuários")
 public class UserResource {
 
+
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserResource(UserService userService) {
+        this.userService = userService;
+    }
 
     @Operation(summary = "Busca todos os usuários", description = "Endpoint que retorna uma lista completa de todos os usuários.")
     @ApiResponses(value = {

@@ -17,10 +17,16 @@ import java.util.Optional;
 
 @Service
 public class ProductService {
+
+    private final ProductRepository productRepository;
+
+    private final CategoryRepository categoryRepository;
+
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+    }
 
     // repassa a chamada para o repository
     public List<Product> findAll() {

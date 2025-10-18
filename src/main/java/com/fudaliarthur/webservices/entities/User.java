@@ -5,13 +5,16 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "tb_user")
 public class User implements Serializable {
+    @JsonIgnore
+    // e usado para nao criar um loop infinito por causa da instanciacao de uma classe dentro da outra, so precisa ser usado em um dos lados
+    @OneToMany(mappedBy = "client") // um para muitos, um usuario pode ter muitos pedidos
+    private final List<Order> orders = new ArrayList<>(); // orders e uma lista, entao apenas Get sao criados
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,10 +22,6 @@ public class User implements Serializable {
     private String email;
     private String phone;
     private String password;
-
-    @JsonIgnore // e usado para nao criar um loop infinito por causa da instanciacao de uma classe dentro da outra, so precisa ser usado em um dos lados
-    @OneToMany(mappedBy = "client") // um para muitos, um usuario pode ter muitos pedidos
-    private final List<Order> orders = new ArrayList<>(); // orders e uma lista, entao apenas Get sao criados
 
     public User() {
     }

@@ -1,0 +1,71 @@
+# Nome do workflow que aparece no Github
+name: CI/CD Pipeline
+
+# Executa a cada Push e Pull request na main
+on:
+  push:
+    branches: [ "main" ] # Executa sempre que houver um push na branch 'main'
+    paths-ignore:
+      - 'README.md'       # Ignora mudanças apenas no README
+      - 'docs/**'         # Ignora qualquer arquivo dentro da pasta 'docs'
+      - 'LICENSE'         # Ignora o arquivo de licença
+      - 'CONTRIBUTING.md' # Ignora o guia de contribuição
+  pull_request:
+    branches: [ "main" ] # Executa sempre que um Pull Request for aberto para a branch 'main'
+    paths-ignore:
+      - 'README.md'       # Ignora mudanças apenas no README
+      - 'docs/**'         # Ignora qualquer arquivo dentro da pasta 'docs'
+      - 'LICENSE'         # Ignora o arquivo de licença
+      - 'CONTRIBUTING.md' # Ignora o guia de contribuição
+
+# Lista de Jobs
+jobs:
+  # Job 1: CI - Testes e validação
+  ci:
+    # Sistema operacional para executar
+    runs-on: ubuntu-latest
+
+    # Lista de passos (steps) do job
+    steps:
+      # Passo 1: Baixar o código do repositório
+      - name: Fazer checkout do código
+        uses: actions/checkout@v5
+
+      # Passo 2: Configurar Java 21
+      - name: Configurar Java 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # Passo 3: Executar testes
+      - name: Executar testes
+        run: mvn -B verify --file pom.xml
+
+
+  cd:
+    needs: ci
+
+    if: github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Baixar o código do repositório
+      - name: Fazer checkout do código
+        uses: actions/checkout@v5
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Gerar JAR para deploy
+        run: mvn -B package --file pom.xml -DskipTests
+
+      - name: Upload JAR para deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar

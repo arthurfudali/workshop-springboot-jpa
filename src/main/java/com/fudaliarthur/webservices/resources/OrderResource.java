@@ -20,8 +20,13 @@ import java.util.List;
 @Tag(name = "Order management", description = "Rotas para gerenciamento de pedidos")
 public class OrderResource {
 
+
+    private final OrderService orderService;
+
     @Autowired
-    private OrderService orderService;
+    public OrderResource(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @Operation(summary = "Busca todos os pedidos", description = "Endpoint que retorna uma lista completa de todos os pedidos.")
     @ApiResponses(value = {
@@ -29,8 +34,8 @@ public class OrderResource {
     })
     @GetMapping
     public ResponseEntity<List<Order>> findAll() {
-        List<Order> Orders = orderService.findAll();
-        return ResponseEntity.ok(Orders);
+        List<Order> ordersList = orderService.findAll();
+        return ResponseEntity.ok(ordersList);
     }
 
     @Operation(summary = "Busca pedido por ID", description = "Endpoint que retorna um pedido específico.")
@@ -40,8 +45,8 @@ public class OrderResource {
     })
     @GetMapping(value = "/{id}")
     public ResponseEntity<Order> findById(@PathVariable Long id) {
-        Order Order = orderService.findById(id);
-        return ResponseEntity.ok(Order);
+        Order order = orderService.findById(id);
+        return ResponseEntity.ok(order);
     }
 
     @Operation(summary = "Cria pedido", description = "Endpoint que cria um pedido com base nas informações do corpo.")
@@ -74,7 +79,7 @@ public class OrderResource {
             @ApiResponse(responseCode = "409", description = "Pedido já possui pagamento")
     })
     @PostMapping("/{orderId}/payment")
-    public ResponseEntity<?> addPayment(@PathVariable Long orderId) {
+    public ResponseEntity<Order> addPayment(@PathVariable Long orderId) {
 
         Order order = orderService.addPayment(orderId);
         return ResponseEntity.ok()

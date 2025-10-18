@@ -19,8 +19,13 @@ import java.util.List;
 @Tag(name = "Categories management", description = "Rotas para gerenciamento de categorias")
 public class CategoryResource {
 
+
+    private final CategoryService categoryService;
+
     @Autowired
-    private CategoryService categoryService;
+    public CategoryResource(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     @Operation(summary = "Busca todos as categorias", description = "Endpoint que retorna uma lista completa de todas as categorias.")
     @ApiResponses(value = {
@@ -38,7 +43,7 @@ public class CategoryResource {
             @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     })
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Category> findById(@PathVariable Long id){
+    public ResponseEntity<Category> findById(@PathVariable Long id) {
         Category category = categoryService.findById(id);
         return ResponseEntity.ok(category);
     }
@@ -49,7 +54,7 @@ public class CategoryResource {
             @ApiResponse(responseCode = "400", description = "Informações faltando")
     })
     @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody Category cat){
+    public ResponseEntity<Category> createCategory(@RequestBody Category cat) {
         cat = categoryService.createCategory(cat);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cat.getId()).toUri();
         return ResponseEntity.created(uri).body(cat);
@@ -61,7 +66,7 @@ public class CategoryResource {
             @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Category> deleteCategory(@PathVariable Long id){
+    public ResponseEntity<Category> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategoryById(id);
         return ResponseEntity.noContent().build();
     }
@@ -73,7 +78,7 @@ public class CategoryResource {
             @ApiResponse(responseCode = "400", description = "Informações faltando")
     })
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category cat){
+    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category cat) {
         cat = categoryService.updateCategory(id, cat);
         return ResponseEntity.ok(cat);
     }
