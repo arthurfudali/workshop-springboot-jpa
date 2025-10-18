@@ -43,16 +43,6 @@ jobs:
         run: mvn -B verify --file pom.xml
 
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v5
-        with:
-          args: >
-            -Dsonar.projectKey=arthurfudali_workshop-springboot-jpa
-            -Dsonar.organization=arthurfudali145wd
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-
   cd:
     needs: ci
 
