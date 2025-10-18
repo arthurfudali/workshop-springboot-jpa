@@ -48,7 +48,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=arthurfudali_workshop-springboot-jpa
-            -Dsonar.organization=arthurfudali
+            -Dsonar.organization=arthurfudali145wd
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
