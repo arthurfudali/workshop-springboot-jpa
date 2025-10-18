@@ -14,38 +14,43 @@ import java.util.Optional;
 
 @Service
 public class CategoryService {
+
+    private final CategoryRepository categoryRepository;
+
     @Autowired
-    private CategoryRepository categoryRepository;
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     // repassa a chamada para o repository
-    public List<Category> findAll(){
+    public List<Category> findAll() {
         return categoryRepository.findAll();
     }
 
-    public Category findById(Long id){
+    public Category findById(Long id) {
         Optional<Category> obj = categoryRepository.findById(id);
         return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
-    public Category createCategory(Category obj){
+    public Category createCategory(Category obj) {
         return categoryRepository.save(obj);
     }
 
-    public void deleteCategoryById(Long id){
-        try{
+    public void deleteCategoryById(Long id) {
+        try {
             Category cat = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
             categoryRepository.delete(cat);
-        } catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             throw new DatabaseException(e.getMessage());
         }
     }
 
-    public Category updateCategory(Long id, Category obj){
-        try{
+    public Category updateCategory(Long id, Category obj) {
+        try {
             Category cat = categoryRepository.getReferenceById(id);
             updateData(cat, obj);
             return categoryRepository.save(cat);
-        } catch (EntityNotFoundException e ){
+        } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException(id);
         }
     }
