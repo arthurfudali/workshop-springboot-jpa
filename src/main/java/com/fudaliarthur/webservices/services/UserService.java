@@ -14,8 +14,13 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // repassa a chamada para o repository
     public List<User> findAll() {

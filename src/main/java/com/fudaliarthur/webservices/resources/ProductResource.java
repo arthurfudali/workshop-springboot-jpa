@@ -20,8 +20,13 @@ import java.util.List;
 @Tag(name = "Product management", description = "Rotas para gerenciamento de produtos")
 public class ProductResource {
 
+
+    private final ProductService productService;
+
     @Autowired
-    private ProductService productService;
+    public ProductResource(ProductService productService) {
+        this.productService = productService;
+    }
 
     @Operation(summary = "Busca todos os produtos", description = "Endpoint que retorna uma lista completa de todos os produtos.")
     @ApiResponses(value = {
