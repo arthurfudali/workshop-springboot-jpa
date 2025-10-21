@@ -13,7 +13,7 @@ public class OrderRequestDTO {
     private Long clientId;
     private List<OrderItemRequestDTO> items;
 
-    private OrderRequestDTO() {
+    public OrderRequestDTO() {
     }
 
 
