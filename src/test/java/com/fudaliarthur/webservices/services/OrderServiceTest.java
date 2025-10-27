@@ -2,12 +2,10 @@ package com.fudaliarthur.webservices.services;
 
 import com.fudaliarthur.webservices.dto.OrderItemRequestDTO;
 import com.fudaliarthur.webservices.dto.OrderRequestDTO;
-import com.fudaliarthur.webservices.entities.Category;
-import com.fudaliarthur.webservices.entities.Order;
-import com.fudaliarthur.webservices.entities.Product;
-import com.fudaliarthur.webservices.entities.User;
+import com.fudaliarthur.webservices.entities.*;
 import com.fudaliarthur.webservices.entities.enums.OrderStatus;
 import com.fudaliarthur.webservices.repositories.OrderRepository;
+import com.fudaliarthur.webservices.repositories.PaymentRepository;
 import com.fudaliarthur.webservices.repositories.ProductRepository;
 import com.fudaliarthur.webservices.repositories.UserRepository;
 import com.fudaliarthur.webservices.services.exceptions.ResourceNotFoundException;
@@ -26,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,10 +38,14 @@ class OrderServiceTest {
     private UserRepository userRepository;
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private PaymentRepository paymentRepository;
+
     private User u1, u2;
     private Order o1, o2, o3;
     private Product p1, p2; // ← ADICIONE PRODUTOS
     private Category cat1, cat2;
+    private Payment pay1;
 
     @BeforeEach
     void setUp() {
@@ -62,9 +64,13 @@ class OrderServiceTest {
         p1.getCategories().add(cat2);
         p2.getCategories().add(cat1);
 
+        pay1 = new Payment(1L, Instant.now(), o1);
+
         o1 = new Order(null, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, u1);
         o2 = new Order(null, Instant.parse("2019-07-21T03:42:10Z"), OrderStatus.CANCELLED, u2);
         o3 = new Order(null, Instant.parse("2019-07-22T15:21:22Z"), OrderStatus.WAITING_PAYMENT, u1);
+
+        o1.setPayment(pay1);
     }
 
     @Test
@@ -150,10 +156,73 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("Should delete order when order exists")
     void deleteOrder() {
+        Long id = 1L;
+        Order mockOrder = new Order(id, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, u1);
+        when(orderRepository.findById(id)).thenReturn(Optional.of(mockOrder));
+        doNothing().when(orderRepository).delete(mockOrder);
+
+        orderService.deleteOrder(id);
+
+        verify(orderRepository, times(1)).delete(mockOrder);
+        verify(orderRepository, times(1)).delete(mockOrder);
     }
 
     @Test
+    @DisplayName("Should throw exception when deleting nox-existing order")
+    void deleteOrderNotFound() {
+        Long id = 99L;
+        when(orderRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            orderService.deleteOrder(id);
+        });
+
+        verify(orderRepository, times(1)).findById(id);
+        verify(orderRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("Should add a payment to an existing order when the status is 'waiting_payment' ")
     void addPayment() {
+        Long id = 3L;
+
+        Payment mockPayment = new Payment(10L, Instant.now(), o3);
+        when(orderRepository.findById(id)).thenReturn(Optional.of(o3));
+        when(paymentRepository.save(any(Payment.class))).thenReturn(mockPayment);
+        when(orderRepository.save(any(Order.class))).thenReturn(o3);
+
+        Order result = orderService.addPayment(id);
+
+        assertNotNull(result.getPayment());
+        assertEquals(OrderStatus.PAID, result.getOrderStatus());
+        verify(paymentRepository).save(any(Payment.class));
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("Should throw an exception when order does not exist")
+    void addPaymentToNonExistingOrder() {
+        Long id = 99L;
+        when(orderRepository.findById(id)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            orderService.addPayment(id);
+        });
+        verify(orderRepository, times(1)).findById(id);
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw an exception when order already has a payment")
+    void addPaymentToOrderWithPayment() {
+        Long id = 1L;
+        when(orderRepository.findById(id)).thenReturn(Optional.of(o1));
+        assertThrows(IllegalStateException.class, () -> {
+            orderService.addPayment(id);
+        });
+        assertEquals(OrderStatus.PAID, o1.getOrderStatus());
+        verify(orderRepository, times(1)).findById(id);
+        verify(orderRepository, never()).save(any());
     }
 }
