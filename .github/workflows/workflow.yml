@@ -61,6 +61,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Run Tests with Coverage
+        run: mvn test jacoco:report
+
+      - name: Upload Coverage to SonarQube
+        run: mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
       - name: Gerar JAR para deploy
         run: mvn -B package --file pom.xml -DskipTests
 
