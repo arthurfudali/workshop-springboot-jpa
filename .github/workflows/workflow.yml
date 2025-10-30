@@ -64,14 +64,11 @@ jobs:
       - name: Run Tests with Coverage
         run: mvn test jacoco:report
 
-      - name: Upload Coverage to SonarQube
-        run: mvn sonar:sonar -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-
       - name: Gerar JAR para deploy
         run: mvn -B package --file pom.xml -DskipTests
 
       - name: Upload JAR para deploy
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app-jar
           path: target/*.jar
