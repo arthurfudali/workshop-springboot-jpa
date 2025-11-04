@@ -1,32 +1,32 @@
-# Estágio 1: Build da aplicação com Maven
-# Usamos uma imagem base que já contém o Maven e o JDK 21
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Build
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copia o pom.xml para o contêiner para baixar as dependências
-COPY pom.xml .
+# Copia apenas o pom.xml e baixa dependências antes do código-fonte
+COPY pom.xml ./
 RUN mvn dependency:go-offline -B
 
-# Copia o código-fonte da aplicação
+# Copia o restante do código-fonte e faz o build
 COPY src ./src
-
-# Executa o build do Maven. O -DskipTests pula a execução dos testes para acelerar o build.
 RUN mvn clean package -DskipTests -B
 
-# Estágio 2: Execução da aplicação
-# Usamos uma imagem base slim do OpenJDK 21, que é menor e mais segura
+
+# Runtime
 FROM eclipse-temurin:21-jre-alpine
 
-# Define o diretório de trabalho
 WORKDIR /app
 
-# Copia o arquivo .jar gerado no estágio de build para o contêiner final
+# Copia o .jar gerado
 COPY --from=build /app/target/*.jar app.jar
 
-# Expõe a porta 8080, que é a porta padrão do Spring Boot
+# Define um usuário não root
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring
+
+# Define variáveis de ambiente para otimização do runtime
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+
 EXPOSE 8080
 
-# Comando para executar a aplicação quando o contêiner iniciar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
